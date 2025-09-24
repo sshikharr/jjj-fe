@@ -399,20 +399,33 @@ const navItems = [
     icon: MessageSquarePlus,
     label: "Start new chat",
     isActive: pathname === "/" && !selectedChat,
-    children: [
-      {
-        label: "Research Assistance",
-        onClick: () => setCurrentTab("chat"),
-      },
-      {
-        label: "Case Prediction",
-        onClick: () => setCurrentTab("analysis"),
-      },
-      {
-        label: "Document Drafting",
-        onClick: () => setCurrentTab("drafting"),
-      },
-    ],
+children: [
+  {
+    label: "Research Assistance",
+    value: "chat",
+    onClick: () => {
+      setCurrentTab("chat");
+      router.push("/"); // ensures we go back home
+    },
+  },
+  {
+    label: "Case Prediction",
+    value: "analysis",
+    onClick: () => {
+      setCurrentTab("analysis");
+      router.push("/");
+    },
+  },
+  {
+    label: "Document Drafting",
+    value: "drafting",
+    onClick: () => {
+      setCurrentTab("drafting");
+      router.push("/");
+    },
+  },
+],
+
   },
   {
     icon: Code,
@@ -501,21 +514,21 @@ const navItems = [
 
             {/* Sub-items */}
             {item.children && isOpen && (
-              <div className="ml-8 mt-1 space-y-1">
-                {item.children.map((child) => (
-                  <button
-                    key={child.label}
-                    onClick={child.onClick}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-accent",
-                      currentTab === child.label.toLowerCase() && "bg-accent text-blue-600" // Highlight active child
-                    )}
-                  >
-                    {child.label}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="ml-8 mt-1 space-y-1">
+              {item.children.map((child) => (
+                <button
+                  key={child.label}
+                  onClick={child.onClick}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-accent",
+                    currentTab === child.value && pathname === "/" && "bg-accent text-blue-600"
+                  )}
+                >
+                  {child.label}
+                </button>
+              ))}
+            </div>
+          )}
           </div>
         );
       })}

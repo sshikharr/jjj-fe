@@ -61,7 +61,7 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState("chat");
+  // const [currentTab, setCurrentTab] = useState("chat");
   const [showFeatures, setShowFeatures] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [copied, setCopied] = useState(false);
@@ -131,6 +131,8 @@ export default function ChatBox() {
     fetchChats,
     setSelectedChat,
     setSelectedLanguage,
+    currentTab,
+    setCurrentTab
   } = useContext(MyContext);
 
   useEffect(() => {
@@ -357,23 +359,23 @@ export default function ChatBox() {
     }
   };
 
-  const features = [
-    {
-      title: "Research Assistance",
-      description: "Get help in researching legal cases",
-      onClick: () => setCurrentTab("chat"),
-    },
-    {
-      title: "Case Prediction",
-      description: "Use AI to predict case outcomes",
-      onClick: () => setCurrentTab("analysis"),
-    },
-    {
-      title: "Document Drafting",
-      description: "Draft legal documents with AI assistance",
-      onClick: () => setCurrentTab("drafting"),
-    },
-  ];
+  // const features = [
+  //   {
+  //     title: "Research Assistance",
+  //     description: "Get help in researching legal cases",
+  //     onClick: () => setCurrentTab("chat"),
+  //   },
+  //   {
+  //     title: "Case Prediction",
+  //     description: "Use AI to predict case outcomes",
+  //     onClick: () => setCurrentTab("analysis"),
+  //   },
+  //   {
+  //     title: "Document Drafting",
+  //     description: "Draft legal documents with AI assistance",
+  //     onClick: () => setCurrentTab("drafting"),
+  //   },
+  // ];
 
   const toggleChatList = () => {
     setIsChatListOpen(!isChatListOpen);
@@ -477,7 +479,7 @@ export default function ChatBox() {
         <ScrollArea className="flex-1 scroll-area">
           <div className="p-4">
             <div className="p-4 flex justify-center">
-              <Tabs
+              {/* <Tabs
                 value={currentTab}
                 className="w-full max-w-2xl justify-center items-center flex"
                 onValueChange={(value) => setCurrentTab(value)}
@@ -502,7 +504,7 @@ export default function ChatBox() {
                     Drafting
                   </TabsTrigger>
                 </TabsList>
-              </Tabs>
+              </Tabs> */}
             </div>
 
             <div className="mt-8">
@@ -521,7 +523,7 @@ export default function ChatBox() {
                   </div>
 
                   <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 ">
-                    {features.map((feature) => (
+                    {/* {features.map((feature) => (
                       <Card
                         key={feature.title}
                         className="group cursor-pointer hover:shadow-lg transition-all duration-300"
@@ -537,7 +539,7 @@ export default function ChatBox() {
                           <ArrowUpRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors transform group-hover:-translate-y-1 group-hover:translate-x-1" />
                         </CardContent>
                       </Card>
-                    ))}
+                    ))} */}
                   </div>
                 </>
               )}

@@ -18,6 +18,8 @@ import {
   Eye,
   EyeOff,
   RotateCw,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -64,10 +66,12 @@ const plans = [
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, setSelectedChat, selectedChat, setUser, setMessages } =
+  const { user, setSelectedChat, selectedChat, setUser, setMessages, currentTab, setCurrentTab } =
     useContext(MyContext);
   const { toast } = useToast();
 
+  const [openItem, setOpenItem] = useState(null);
+  
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showPlanDialog, setShowPlanDialog] = useState(false);
@@ -390,51 +394,61 @@ const handleBuyNow = async (planName) => {
     toast({ title: "Copied", description: "API Key copied to clipboard!" });
   };
 
-  const navItems = [
-    {
-      icon: MessageSquarePlus,
-      label: "Start new chat",
-      onClick: () => {
-        router.push("/");
-        setSelectedChat(null);
+const navItems = [
+  {
+    icon: MessageSquarePlus,
+    label: "Start new chat",
+    isActive: pathname === "/" && !selectedChat,
+    children: [
+      {
+        label: "Research Assistance",
+        onClick: () => setCurrentTab("chat"),
       },
-      isActive: pathname === "/" && !selectedChat,
-    },
-    {
-      icon: Code,
-      label: "Developer API",
-      onClick: () => router.push("/apidocs"),
-      isActive: pathname === "/apidocs",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      onClick: () => setShowSettings(true),
-      isActive: pathname === "/settings",
-    },
-    {
-      icon: HelpCircle,
-      label: "Updates",
-      onClick: () => setShowHelp(true),
-      isActive: pathname === "/updates",
-    },
-    {
-      icon: FileQuestion,
-      label: "FAQs",
-      onClick: () => router.push("/faq"),
-      isActive: pathname === "/faq",
-    },
-    ...(!user?.newsLetterSubscribed
-      ? [
-          {
-            icon: Mail,
-            label: "Subscribe to Newsletter",
-            onClick: handleNewsletterSubscribe,
-            isActive: false,
-          },
-        ]
-      : []),
-  ];
+      {
+        label: "Case Prediction",
+        onClick: () => setCurrentTab("analysis"),
+      },
+      {
+        label: "Document Drafting",
+        onClick: () => setCurrentTab("drafting"),
+      },
+    ],
+  },
+  {
+    icon: Code,
+    label: "Developer API",
+    onClick: () => router.push("/apidocs"),
+    isActive: pathname === "/apidocs",
+  },
+  {
+    icon: Settings,
+    label: "Settings",
+    onClick: () => setShowSettings(true),
+    isActive: pathname === "/settings",
+  },
+  {
+    icon: HelpCircle,
+    label: "Updates",
+    onClick: () => setShowHelp(true),
+    isActive: pathname === "/updates",
+  },
+  {
+    icon: FileQuestion,
+    label: "FAQs",
+    onClick: () => router.push("/faq"),
+    isActive: pathname === "/faq",
+  },
+  ...(!user?.newsLetterSubscribed
+    ? [
+        {
+          icon: Mail,
+          label: "Subscribe to Newsletter",
+          onClick: handleNewsletterSubscribe,
+          isActive: false,
+        },
+      ]
+    : []),
+];
 
   return (
     <div className="flex h-screen w-[280px] flex-col border-r py-4 lg:mt-0">
@@ -457,27 +471,63 @@ const handleBuyNow = async (planName) => {
 
       {/* Navigation Items */}
       <div className="flex-1 space-y-1 px-2">
-        {navItems.map((item) => (
-          <button
-            key={item.label}
-            onClick={item.onClick}
-            className={cn(
-              "flex w-full items-center text-left gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors hover:bg-accent",
-              item.isActive && "bg-accent text-blue-600"
+      {navItems.map((item) => {
+        const isOpen = openItem === item.label;
+
+        return (
+          <div key={item.label}>
+            <button
+              onClick={() =>
+                item.children
+                  ? setOpenItem(isOpen ? null : item.label)
+                  : item.onClick?.()
+              }
+              className={cn(
+                "flex w-full items-center justify-between text-left gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors hover:bg-accent",
+                item.isActive && "bg-accent text-blue-600"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </div>
+              {item.children &&
+                (isOpen ? (
+                  <ChevronDown className="h-3 w-3 text-gray-500" />
+                ) : (
+                  <ChevronRight className="h-3 w-3 text-gray-500" />
+                ))}
+            </button>
+
+            {/* Sub-items */}
+            {item.children && isOpen && (
+              <div className="ml-8 mt-1 space-y-1">
+                {item.children.map((child) => (
+                  <button
+                    key={child.label}
+                    onClick={child.onClick}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-accent",
+                      currentTab === child.label.toLowerCase() && "bg-accent text-blue-600" // Highlight active child
+                    )}
+                  >
+                    {child.label}
+                  </button>
+                ))}
+              </div>
             )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </button>
-        ))}
-        <Link
-          href="/dashboard"
-          className="flex w-full items-center gap-2 rounded-lg px-0 py-2 text-[15px] font-medium transition-colors hover:bg-accent m-3"
-        >
-          <LayoutDashboardIcon className="h-4 w-4" />
-          <span>Dashboard</span>
-        </Link>
-      </div>
+          </div>
+        );
+      })}
+
+      <Link
+        href="/dashboard"
+        className="flex w-full items-center gap-2 rounded-lg px-0 py-2 text-[15px] font-medium transition-colors hover:bg-accent m-3"
+      >
+        <LayoutDashboardIcon className="h-4 w-4" />
+        <span>Dashboard</span>
+      </Link>
+    </div>
 
       {/* Premium Section */}
       <div className="px-4 mt-auto">

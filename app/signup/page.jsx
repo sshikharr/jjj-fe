@@ -69,7 +69,7 @@ const Signup = () => {
     confirmPassword: "",
     mobileNumber: "",
   });
-  const [selectedCountry, setSelectedCountry] = useState(countries[1]); // Default to India
+  const [selectedCountry, setSelectedCountry] = useState(countries[1]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
@@ -86,14 +86,12 @@ const Signup = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  // Filter countries based on search term
   const filteredCountries = countries.filter(country =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     country.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
     country.dialCode.includes(searchTerm)
   );
 
-  // Password validation function
   const validatePassword = (password) => {
     return {
       minLength: password.length >= 6,
@@ -104,53 +102,41 @@ const Signup = () => {
     };
   };
 
-  // Update form values on change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Validate password in real-time
     if (name === "password") {
       setPasswordValidation(validatePassword(value));
     }
   };
 
-  // Handle mobile number input (only allow digits)
   const handleMobileChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     setFormData((prev) => ({ ...prev, mobileNumber: value }));
   };
 
-  // Check if password is strong
   const isPasswordStrong = () => {
     return Object.values(passwordValidation).every(Boolean);
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // Validate password strength
     if (!isPasswordStrong()) {
       setError("Please meet all password requirements");
       setIsLoading(false);
       return;
     }
 
-    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
-    // For testing, using a dummy FCM token.
-    // Replace this with the actual token from your Firebase Messaging client if available.
     const fcmToken = "dummy_fcm_token_for_testing_signup";
-
-    // Combine country code with mobile number
     const fullMobileNumber = selectedCountry.dialCode + formData.mobileNumber;
 
     try {
@@ -159,14 +145,14 @@ const Signup = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
             mobileNumber: fullMobileNumber,
             countryCode: selectedCountry.code,
-            fcmToken 
+            fcmToken
           }),
         }
       );
@@ -197,319 +183,311 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Section: Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-sm space-y-8">
-          <div className="space-y-2 text-center">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
-                <img src="https://res.cloudinary.com/dc9msi1wn/image/upload/v1737221626/LOGO_1_nj85xe.png" alt="Logo" />
-              </div>
-              <span className="text-xl font-semibold">Juristo</span>
-            </Link>
-            <h1 className="text-2xl font-bold">Create an account</h1>
-            <p className="text-sm text-gray-600">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-3xl flex flex-col">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <Link href="/" className="inline-flex items-center gap-2">
+                <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
+                  <img src="https://res.cloudinary.com/dc9msi1wn/image/upload/v1737221626/LOGO_1_nj85xe.png" alt="Logo" />
+                </div>
+                <span className="text-xl font-semibold">Juristo</span>
+              </Link>
+            </div>
+            <CardTitle className="text-xl text-center">Create an account</CardTitle>
+            <CardDescription className="text-center">
               Start your 30-day free trial. No credit card required.
-            </p>
-          </div>
+            </CardDescription>
+          </CardHeader>
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+          <CardContent className="flex-1 overflow-y-auto">
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  placeholder="John"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  placeholder="Doe"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Work email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@company.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Enhanced Mobile Number Section */}
-            <div className="space-y-2">
-              <Label htmlFor="mobileNumber">Mobile number</Label>
-              <div className="flex relative">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="firstName" className="text-sm">First name</Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
                     disabled={isLoading}
-                    className="h-10 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-md shadow-sm flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 min-w-[110px] z-10"
-                  >
-                    <Flag 
-                      code={selectedCountry.code} 
-                      className="w-5 h-4 rounded-sm border border-gray-200 dark:border-gray-600"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {selectedCountry.dialCode}
-                    </span>
-                    <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="lastName" className="text-sm">Last name</Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                    className="h-9"
+                  />
+                </div>
+              </div>
 
-                  {isDropdownOpen && (
-                    <>
-                      {/* Backdrop overlay */}
-                      <div 
-                        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
-                        onClick={() => setIsDropdownOpen(false)}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="email" className="text-sm">Work email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="name@company.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                    className="h-9"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="mobileNumber" className="text-sm">Mobile number</Label>
+                  <div className="flex relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      disabled={isLoading}
+                      className="h-9 px-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-md flex items-center gap-1 min-w-[90px]"
+                    >
+                      <Flag
+                        code={selectedCountry.code}
+                        className="w-4 h-3 rounded-sm border border-gray-200 dark:border-gray-600"
                       />
-                      
-                      {/* Dropdown container */}
-                      <div className="absolute top-full left-0 z-50 mt-1 w-80 max-w-[90vw] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl overflow-hidden">
-                        {/* Search header */}
-                        <div className="p-3 border-b border-gray-100 dark:border-gray-700">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <input
-                              type="text"
-                              placeholder="Search countries..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                            />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
+                        {selectedCountry.dialCode}
+                      </span>
+                      <ChevronDown className={`h-3 w-3 text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40 bg-black/20"
+                          onClick={() => setIsDropdownOpen(false)}
+                        />
+                        <div className="absolute top-full left-0 z-50 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl">
+                          <div className="p-2 border-b border-gray-100 dark:border-gray-700">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Search countries..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-8 pr-3 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        
-                        {/* Countries list */}
-                        <div className="max-h-60 overflow-y-auto">
-                          {filteredCountries.length > 0 ? (
-                            filteredCountries.map((country) => (
-                              <button
-                                key={country.code}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedCountry(country);
-                                  setIsDropdownOpen(false);
-                                  setSearchTerm("");
-                                }}
-                                className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors duration-150 ${
-                                  selectedCountry.code === country.code ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                                }`}
-                              >
-                                <Flag 
-                                  code={country.code} 
-                                  className="w-5 h-4 rounded-sm border border-gray-200 dark:border-gray-600 flex-shrink-0"
-                                />
-                                <div className="flex-1 min-w-0">
+                          <div className="max-h-48 overflow-y-auto">
+                            {filteredCountries.length > 0 ? (
+                              filteredCountries.map((country) => (
+                                <button
+                                  key={country.code}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedCountry(country);
+                                    setIsDropdownOpen(false);
+                                    setSearchTerm("");
+                                  }}
+                                  className={`w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-xs ${
+                                    selectedCountry.code === country.code ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                                  }`}
+                                >
+                                  <Flag
+                                    code={country.code}
+                                    className="w-4 h-3 rounded-sm border border-gray-200 dark:border-gray-600"
+                                  />
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    <span className="font-medium text-gray-900 dark:text-gray-100">
                                       {country.dialCode}
                                     </span>
-                                    <span className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                    <span className="text-gray-600 dark:text-gray-400 truncate">
                                       {country.name}
                                     </span>
                                   </div>
-                                </div>
-                                {selectedCountry.code === country.code && (
-                                  <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                                )}
-                              </button>
-                            ))
-                          ) : (
-                            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                              No countries found
-                            </div>
-                          )}
+                                </button>
+                              ))
+                            ) : (
+                              <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+                                No countries found
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <Input
-                  id="mobileNumber"
-                  name="mobileNumber"
-                  type="tel"
-                  placeholder="1234567890"
-                  value={formData.mobileNumber}
-                  onChange={handleMobileChange}
-                  required
-                  disabled={isLoading}
-                  className="flex-1 rounded-l-none border-l-0 focus:border-l focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </div>
-              
-              {/* Password strength indicators */}
-              {formData.password && (
-                <div className="space-y-1">
-                  <div className="text-xs space-y-1">
-                    <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="w-1 h-1 rounded-full bg-current"></span>
-                      At least 6 characters
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="w-1 h-1 rounded-full bg-current"></span>
-                      One uppercase letter
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="w-1 h-1 rounded-full bg-current"></span>
-                      One lowercase letter
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="w-1 h-1 rounded-full bg-current"></span>
-                      One number
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="w-1 h-1 rounded-full bg-current"></span>
-                      One special character
-                    </div>
+                      </>
+                    )}
+                    <Input
+                      id="mobileNumber"
+                      name="mobileNumber"
+                      type="tel"
+                      placeholder="1234567890"
+                      value={formData.mobileNumber}
+                      onChange={handleMobileChange}
+                      required
+                      disabled={isLoading}
+                      className="h-9 rounded-l-none border-l-0"
+                    />
                   </div>
                 </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
               </div>
-              
-              {/* Password match indicator */}
-              {formData.confirmPassword && (
-                <div className={`text-xs flex items-center gap-1 ${
-                  formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-500'
-                }`}>
-                  <span className="w-1 h-1 rounded-full bg-current"></span>
-                  {formData.password === formData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="password" className="text-sm">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      disabled={isLoading}
+                      className="h-9 pr-8"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-2 flex items-center"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-3 w-3 text-gray-400" />
+                      ) : (
+                        <Eye className="h-3 w-3 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {formData.password && (
+                    <div className="text-xs space-y-0.5">
+                      <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                        At least 6 characters
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                        One uppercase letter
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                        One lowercase letter
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                        One number
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                        One special character
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="flex items-start space-x-2">
-              <Checkbox id="terms" />
-              <label
-                htmlFor="terms"
-                className="text-sm text-gray-600 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I agree to the{" "}
-                <Link href="/terms" className="text-[#4B6BFB] hover:underline">
-                  terms of service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/privacy"
-                  className="text-[#4B6BFB] hover:underline"
+                <div className="space-y-1">
+                  <Label htmlFor="confirmPassword" className="text-sm">Confirm password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      disabled={isLoading}
+                      className="h-9 pr-8"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-2 flex items-center"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-3 w-3 text-gray-400" />
+                      ) : (
+                        <Eye className="h-3 w-3 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {formData.confirmPassword && (
+                    <div className={`text-xs flex items-center gap-1 ${
+                      formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-500'
+                    }`}>
+                      <span className="w-1 h-1 rounded-full bg-current"></span>
+                      {formData.password === formData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="terms" />
+                  <label
+                    htmlFor="terms"
+                    className="text-xs text-gray-600 leading-none"
+                  >
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-[#4B6BFB] hover:underline">
+                      terms of service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-[#4B6BFB] hover:underline"
+                    >
+                      privacy policy
+                    </Link>
+                  </label>
+                </div>
+                <Button
+                  type="submit"
+                  className="h-9 bg-gray-100 text-gray-700 hover:bg-gray-400"
+                  disabled={isLoading}
                 >
-                  privacy policy
-                </Link>
-              </label>
-            </div>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
 
-            <Button
-              type="submit"
-              className="w-full bg-gray-100 text-gray-700 hover:bg-gray-400"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : (
-                "Create account"
-              )}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link href="/login" className="text-[#4B6BFB] hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
+          <CardFooter className="justify-center">
+            <p className="text-xs text-gray-600">
+              Already have an account?{" "}
+              <Link href="/login" className="text-[#4B6BFB] hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
 
       {/* Right Section: Illustration */}
       <div className="hidden lg:block lg:flex-1 bg-gray-50">
         <div className="relative w-full h-full">
-          
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-gray-900/0" />
           <img
             src="https://static.vecteezy.com/system/resources/previews/027/105/968/large_2x/legal-law-and-justice-concept-open-law-book-with-a-wooden-judges-gavel-in-a-courtroom-or-law-enforcement-office-free-photo.jpg"
@@ -518,12 +496,12 @@ const Signup = () => {
             className="object-cover h-full"
           />
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-            <blockquote className="space-y-2">
-              <p className="text-lg">
+            <blockquote className="space-y-1">
+              <p className="text-base">
                 "The onboarding process was seamless, and the platform's
                 capabilities exceeded our expectations."
               </p>
-              <footer className="text-sm">
+              <footer className="text-xs">
                 <cite>Michael Torres, Legal Operations Manager</cite>
               </footer>
             </blockquote>
@@ -531,12 +509,10 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Error handling for flag component */}
       <style jsx>{`
-        /* Fallback styling for flag component */
         .flag-fallback {
-          width: 20px;
-          height: 16px;
+          width: 16px;
+          height: 12px;
           background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
           border-radius: 2px;
           display: inline-block;
@@ -549,20 +525,18 @@ const Signup = () => {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 10px;
+          font-size: 8px;
         }
         
-        /* Ensure proper flag sizing */
         .react-world-flags {
           display: inline-block;
           vertical-align: middle;
         }
         
-        /* Mobile responsive adjustments */
         @media (max-width: 640px) {
           .react-world-flags {
-            width: 16px !important;
-            height: 12px !important;
+            width: 12px !important;
+            height: 9px !important;
           }
         }
       `}</style>

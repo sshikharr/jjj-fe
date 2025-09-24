@@ -6,6 +6,7 @@ const MyContext = createContext();
 
 const MyProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [currentTab, setCurrentTab] = useState("chat");
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState({
     value: "IN",
@@ -119,6 +120,8 @@ const MyProvider = ({ children }) => {
         isSidebarOpen,
         setIsSidebarOpen,
         toggleSidebar,
+        currentTab,
+        setCurrentTab,
       }}
     >
       {children}

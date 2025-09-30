@@ -667,7 +667,7 @@ export default function ChatBox() {
       {/* Chat List */}
       <div
         className={cn(
-          "lg:flex flex-none lg:w-72 h-full overflow-y-auto bg-black fixed lg:static top-0 right-0 transition-transform duration-300 ease-in-out z-30",
+          "lg:flex flex-none max-w-xs h-full overflow-y-auto bg-black fixed lg:static top-0 right-0 transition-transform duration-300 ease-in-out z-30",
           isChatListOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
